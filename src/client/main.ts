@@ -230,7 +230,11 @@ async function submit(s: Session): Promise<void> {
   const p = currentProblem(s);
   const seg = { round: s.run.round + 1, answer: Number(s.wheels.join('')) };
   const next = applySegment(DEFAULT_RULES, s.run, seg);
-  if (!next) return;
+  if (!next) {
+    s.busy = false;
+    return;
+  }
+  const mine = gen;
   const right = next.streak > 0;
   const gained = next.points - s.run.points;
   s.flash = right ? 'right' : 'wrong';
@@ -240,8 +244,9 @@ async function submit(s: Session): Promise<void> {
   if (ONLINE && s.ranked) {
     const res = await api.soloSegment(config.id, s.ranked.runId, seg);
     if (!res || !res.ok) s.ranked = null;
+    if (mine !== gen) return;
   }
-  setTimeout(() => {
+  nextRound = setTimeout(() => {
     s.flash = null;
     s.busy = false;
     if (!runOver(DEFAULT_RULES, s.run)) resetWheels(s);
@@ -326,6 +331,9 @@ function wheel(s: Session, i: number, p: { a: number; b: number }): HTMLElement 
 }
 
 let keyHandler: ((e: KeyboardEvent) => void) | null = null;
+/** Bumped on every navigation; async game work started under an older value is dropped. */
+let gen = 0;
+let nextRound: ReturnType<typeof setTimeout> | undefined;
 
 function gameView(s: Session, p: { a: number; b: number }): void {
   const place = s.wheels.length - 1 - s.focus;
@@ -354,7 +362,9 @@ function gameView(s: Session, p: { a: number; b: number }): void {
 
 async function drawGame(s: Session): Promise<void> {
   if (runOver(DEFAULT_RULES, s.run)) {
+    const mine = gen;
     const board: ScoresResponse | null = ONLINE ? await api.scores(config.id) : null;
+    if (mine !== gen) return;
     render(
       el('main', { className: 'game' }, [
         backButton(),
@@ -372,10 +382,12 @@ async function drawGame(s: Session): Promise<void> {
 }
 
 async function startGame(): Promise<void> {
+  const mine = gen;
   const s = await newSession();
+  if (mine !== gen) return;
   resetWheels(s);
   keyHandler = (e: KeyboardEvent) => {
-    if (s.busy || location.hash !== '#play') return;
+    if (s.busy || runOver(DEFAULT_RULES, s.run) || location.hash !== '#play') return;
     const p = currentProblem(s);
     if (/^[0-9]$/.test(e.key)) {
       s.wheels[s.focus] = Number(e.key);
@@ -400,6 +412,8 @@ function go(hash: string): void {
 
 function route(): void {
   stopTimer();
+  gen++;
+  if (nextRound !== undefined) clearTimeout(nextRound);
   keyHandler = null;
   const id = decodeURIComponent(location.hash.slice(1));
   if (id === 'play') return void startGame();
