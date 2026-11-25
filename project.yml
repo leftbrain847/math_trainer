@@ -5,4 +5,4 @@ what: "Each maths topic solved six ways in an animated grid you can scrub live, 
 next: "Build the division grid (long, short, chunking, partial quotients, doubling, area); then save mastery per topic across sessions" # the next step
 active: true          # true pulls this repo's tasks into J's queue
 public: true          # informational; each sprint day's snapshot decides publishing
-settings_done: false  # J sets the repo settings listed in CLAUDE.md, then this flips to true
+settings_done: true   # J sets the repo settings listed in CLAUDE.md, then this flips to true
