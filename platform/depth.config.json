@@ -1,0 +1,19 @@
+{
+  "$comment": "The depth rubric every app is scored against (SPEC section 8, step 3). Copied into each app as platform/depth.config.json by sync. Tune weights and thresholds here, never in an app.",
+  "enforce": "warn",
+  "scale": { "min": 0, "max": 3 },
+  "pillars": {
+    "mastery":     { "weight": 1, "test": "The core action rewards getting better at it." },
+    "open_loop":   { "weight": 1, "test": "Every session ends on something unfinished." },
+    "progression": { "weight": 1, "test": "Goals span many sessions: seasons, tiers, unlocks." },
+    "ownership":   { "weight": 1, "test": "Something that is the player's own and grows: a team, a town, a word garden." },
+    "consequence": { "weight": 1, "test": "Choices with delayed, visible results: a draft, a build order." },
+    "runway":      { "weight": 1, "test": "30+ days of content, plus a generator for more." },
+    "habit":       { "weight": 1, "test": "A daily reason to return, without dark patterns." },
+    "stories":     { "weight": 1, "test": "The game produces narratives worth a video." },
+    "social":      { "weight": 1, "test": "Other people make it better: co-op, rivals, trading, sharing. Optional, never forced." }
+  },
+  "reject_if_zero": ["progression", "ownership", "runway"],
+  "allow_zero": ["habit", "social"],
+  "ship_min_total": 14
+}

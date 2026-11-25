@@ -1,0 +1,5 @@
+{
+  "appId": "com.example.apps.math_trainer",
+  "appName": "Math Trainer",
+  "webDir": "dist/play"
+}
