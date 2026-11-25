@@ -96,6 +96,22 @@ export class Scene {
     return this.add(c, { cls: 'dot', ...b }, [x - r, x + r], [y - r, y + r]);
   }
 
+  /** A polyline (open) or polygon (closed) through the points. Use for curves, wedges, triangles, graphs. */
+  poly(points: [number, number][], b: Bits & { closed?: boolean } = {}): SVGElement {
+    const node = svgEl(b.closed ? 'polygon' : 'polyline');
+    node.setAttribute('points', points.map(([x, y]) => `${x},${y}`).join(' '));
+    return this.add(node, { cls: b.closed ? 'box' : 'stroke curve', ...b }, points.map((p) => p[0]), points.map((p) => p[1]));
+  }
+
+  /** An outlined circle (a `dot` is filled). */
+  ring(cx: number, cy: number, r: number, b: Bits = {}): SVGElement {
+    const c = svgEl('circle');
+    c.setAttribute('cx', String(cx));
+    c.setAttribute('cy', String(cy));
+    c.setAttribute('r', String(r));
+    return this.add(c, { cls: 'stroke ring', ...b }, [cx - r, cx + r], [cy - r, cy + r]);
+  }
+
   caption(step: number, s: string): void {
     this.captions[step] = s;
   }
