@@ -1,6 +1,6 @@
 # Math Trainer
 
-Every maths problem, solved more than one way. Pick a topic and its methods play side by side in a 2×3 grid; drag the sliders and every drawing updates as it plays. Multiplication is live with six methods (standard, lattice, area, partial products, halve & double, lines). **Lock Lattice** is the game: dial each lattice diagonal's total into a luggage-lock wheel; a streak grows the multiplier and the problems.
+Every maths problem, solved more than one way. Pick a topic and its methods play side by side in a 2×3 grid; drag the sliders and every drawing updates as it plays. Live now: multiplication (standard, lattice, area, partial products, halve & double, lines) and division (long, short/bus stop, chunking, partial quotients, doubling, area model), each six ways. **Lock Lattice** is the game: dial each lattice diagonal's total into a luggage-lock wheel; a streak grows the multiplier and the problems.
 
 `src/catalog.ts` lists 18 topics that have two or more methods; each gets a page, and the rest show their method list until built.
 

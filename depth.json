@@ -6,7 +6,7 @@
     "progression": { "score": 1, "plan": "Built: four levels within a run. Next: per-topic mastery tiers saved across sessions; mastering one topic opens the next topic's lock." },
     "ownership":   { "score": 0, "plan": "A keyring: every topic mastered adds a lock you opened, styled by the method you used most." },
     "consequence": { "score": 1, "plan": "Built: a miss costs the streak and a level. Next: choose which method's lock to attempt for different point multipliers." },
-    "runway":      { "score": 2, "plan": "Built: problems are generated from the seed without limit; 18 topics are catalogued with 2-7 methods each. Next: build one topic grid per sprint day, division first." },
+    "runway":      { "score": 2, "plan": "Built: problems are generated from the seed without limit; 18 topics are catalogued with 2-7 methods each; multiplication and division grids are built. Next: one topic grid per sprint day, subtraction next." },
     "habit":       { "score": 0, "plan": "A daily lock: one shared seed per day, the same problems for everyone." },
     "stories":     { "score": 1, "plan": "Built: the six-method grid replays any problem as a 2×3 animation sized for the bottom half of a vertical video. Next: an export that records the grid for a given problem." },
     "social":      { "score": 0, "plan": "On the friends host: a board for the daily lock, so friends race the same problems." }

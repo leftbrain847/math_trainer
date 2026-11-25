@@ -1,7 +1,7 @@
 /**
  * Math Trainer client. Three views, picked by the URL hash:
  *   #            topics
- *   #<topic>     a topic page (multiplication: the six-method grid with live sliders)
+ *   #<topic>     a topic page: a built topic shows its six-method grid with live sliders
  *   #play        Lock Lattice, the game
  * On the friends host the game asks the server for a seed and sends each answer to be replayed, so the score on
  * the board is the server's. In the Play and demo builds (`VITE_TARGET=play`) every network path is compiled out.
@@ -11,7 +11,8 @@ import config from '../../app.config.json';
 import { applySegment, DEFAULT_RULES, multiplier, problemFor, runOver, startRun, type Run } from '../app';
 import { TOPICS, type Topic } from '../catalog';
 import { digits, lattice } from '../math';
-import { METHODS, type Method } from './methods';
+import { DIVISION_METHODS } from './division-methods';
+import { METHODS } from './methods';
 import { svgEl, type Scene } from './scene';
 import { el, render } from './ui';
 
@@ -24,8 +25,6 @@ export const UI = {
   holdTicks: 3,
   /** Each tile plays this many times on its own; ↻ plays it again. */
   autoPlays: 2,
-  start: { a: 47, b: 23 },
-  range: { min: 2, max: 999 },
   /** Delay before the next round, after a right or wrong answer. */
   nextRoundMs: { right: 700, wrong: 1800 },
   /** The multiplier orb grows with the streak (scale = base + perMultiplier × multiplier). */
@@ -63,12 +62,35 @@ function plannedTopicView(t: Topic): void {
   );
 }
 
+/** A built topic's grid: its methods, its two numbers and how to state the problem. */
+interface GridSpec {
+  methods: { id: string; title: string; draw: (a: number, b: number) => Scene }[];
+  a: { label: string; start: number; min: number; max: number };
+  b: { label: string; start: number; min: number; max: number };
+  problem: (a: number, b: number) => string;
+}
+
+export const GRIDS: Record<string, GridSpec> = {
+  multiplication: {
+    methods: METHODS,
+    a: { label: 'a', start: 47, min: 2, max: 999 },
+    b: { label: 'b', start: 23, min: 2, max: 999 },
+    problem: (a, b) => `${a} × ${b} = ${a * b}`,
+  },
+  division: {
+    methods: DIVISION_METHODS,
+    a: { label: 'n', start: 1597, min: 2, max: 9999 },
+    b: { label: 'd', start: 12, min: 2, max: 99 },
+    problem: (n, d) => `${n} ÷ ${d} = ${Math.floor(n / d)}${n % d ? ` r ${n % d}` : ''}`,
+  },
+};
+
 const backButton = () => el('button', { className: 'back', text: '← Topics', onClick: () => go('') });
 
 // ---------- the six-method grid ----------
 
 interface Tile {
-  method: Method;
+  method: GridSpec['methods'][number];
   scene: Scene;
   step: number;
   hold: number;
@@ -84,16 +106,16 @@ const stopTimer = () => {
   timer = undefined;
 };
 
-function multiplicationView(): void {
-  let a = UI.start.a;
-  let b = UI.start.b;
+function gridView(spec: GridSpec): void {
+  let a = spec.a.start;
+  let b = spec.b.start;
   const problem = el('p', { className: 'problem' });
   const showProblem = () => {
-    problem.textContent = `${a} × ${b} = ${a * b}`;
+    problem.textContent = spec.problem(a, b);
   };
   showProblem();
 
-  const tiles: Tile[] = METHODS.map((method) => {
+  const tiles: Tile[] = spec.methods.map((method) => {
     const frame = el('div', { className: 'frame' });
     const caption = el('p', { className: 'caption' });
     const tile: Tile = { method, scene: method.draw(a, b), step: 0, hold: 0, plays: 0, frame, caption, node: el('div') };
@@ -154,16 +176,17 @@ function multiplicationView(): void {
     }
   }
 
-  const slider = (label: string, get: () => number, set: (v: number) => void) => {
+  const slider = (range: GridSpec['a'], get: () => number, set: (v: number) => void) => {
+    const label = range.label;
     const input = el('input');
     input.type = 'range';
-    input.min = String(UI.range.min);
-    input.max = String(UI.range.max);
+    input.min = String(range.min);
+    input.max = String(range.max);
     input.value = String(get());
     input.setAttribute('aria-label', label);
     const out = el('output', { text: String(get()) });
     const apply = (v: number) => {
-      const n = Math.max(UI.range.min, Math.min(UI.range.max, Math.round(v)));
+      const n = Math.max(range.min, Math.min(range.max, Math.round(v)));
       set(n);
       input.value = String(n);
       out.textContent = String(n);
@@ -181,7 +204,7 @@ function multiplicationView(): void {
     el('main', { className: 'wide' }, [
       el('div', { className: 'bar' }, [backButton(), el('button', { className: 'small', text: '🔒 Play', onClick: () => go('play') })]),
       problem,
-      el('div', { className: 'sliders' }, [slider('a', () => a, (v) => (a = v)), slider('b', () => b, (v) => (b = v))]),
+      el('div', { className: 'sliders' }, [slider(spec.a, () => a, (v) => (a = v)), slider(spec.b, () => b, (v) => (b = v))]),
       el('div', { className: 'grid' }, tiles.map((t) => t.node)),
       el('p', { className: 'muted', text: 'Tap a drawing to enlarge it. Each plays twice; ↻ plays it again. Drag the sliders and every method updates as it plays.' }),
     ]),
@@ -419,7 +442,8 @@ function route(): void {
   if (id === 'play') return void startGame();
   const t = TOPICS.find((x) => x.id === id);
   if (!t) return topicsView();
-  if (t.id === 'multiplication') return multiplicationView();
+  const grid = t.built ? GRIDS[t.id] : undefined;
+  if (grid) return gridView(grid);
   plannedTopicView(t);
 }
 
