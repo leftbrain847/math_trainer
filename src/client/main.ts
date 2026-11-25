@@ -57,6 +57,8 @@ export const UI = {
   autoPlays: 2,
   /** Delay before the next round, after a right or wrong answer. */
   nextRoundMs: { right: 700, wrong: 1800 },
+  /** Problem lines longer than this use the smaller `.problem.long` size. */
+  longProblemChars: 18,
   /** The multiplier orb grows with the streak (scale = base + perMultiplier × multiplier). */
   orb: { base: 0.8, perMultiplier: 0.08 },
 };
@@ -116,7 +118,10 @@ const stopTimer = () => {
 function gridView(spec: GridSpec): void {
   const problem = el('p', { className: 'problem' });
   const showProblem = () => {
-    problem.textContent = spec.problem(values);
+    const text = spec.problem(values);
+    problem.textContent = text;
+    // Long problem lines (equations, verdicts) drop a size so they fit one line on a phone.
+    problem.classList.toggle('long', text.length > UI.longProblemChars);
   };
 
   const values = spec.sliders.map((s) => s.start);
