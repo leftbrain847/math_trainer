@@ -82,12 +82,16 @@ button:focus-visible { outline: 3px solid var(--fg); outline-offset: 2px; }
 
 /* Multiplication page */
 .problem { font-family: var(--mono); font-size: 1.6em; font-weight: 600; text-align: center; margin: 8px 0; }
+.problem.long { font-size: 1.15em; }
 .sliders { display: grid; gap: 6px; margin-bottom: 12px; }
-.slider { display: grid; grid-template-columns: 1.2em 40px minmax(0, 1fr) 40px 3em; align-items: center; gap: 6px; }
+.slider { display: grid; grid-template-columns: 2.6em 40px minmax(0, 1fr) 40px 3.2em; align-items: center; gap: 6px; }
 .slider .lbl { font-family: var(--mono); font-weight: 600; }
 .slider input { width: 100%; accent-color: var(--accent); }
 .slider output { font-family: var(--mono); text-align: right; }
 .nudge { min-width: 40px; min-height: 40px; padding: 0; }
+.slider.pace { margin-top: 4px; padding-top: 8px; border-top: 1px solid var(--line); }
+.slider.pace .lbl { font-family: var(--font); font-size: 0.85em; }
+.slider.pace .nudge { background: transparent; border: 1px solid var(--line); }
 .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 @media (min-width: 700px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .tile {
@@ -107,6 +111,9 @@ button:focus-visible { outline: 3px solid var(--fg); outline-offset: 2px; }
 .scene text { font-family: var(--mono); fill: var(--fg); transition: fill var(--step-fade), opacity var(--step-fade); }
 .scene .stroke { stroke: var(--fg); stroke-width: 1.4; transition: opacity var(--step-fade), stroke var(--step-fade); }
 .scene .thin { stroke: var(--line); stroke-width: 1; }
+.scene .curve, .scene .ring { fill: none; }
+.scene .fill { fill: var(--hot-bg); stroke: var(--hot); stroke-width: 1; }
+.scene .faint { opacity: 0.45; }
 .scene .box { fill: transparent; stroke: var(--line); transition: fill var(--step-fade); }
 .scene .box.hot { fill: var(--hot-bg); }
 .scene .dot { fill: var(--hot); transition: opacity var(--step-fade); }

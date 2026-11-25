@@ -1,8 +1,8 @@
 # Math Trainer
 
-Every maths problem, solved more than one way. Pick a topic and its methods play side by side in a 2×3 grid; drag the sliders and every drawing updates as it plays. Live now: multiplication (standard, lattice, area, partial products, halve & double, lines) and division (long, short/bus stop, chunking, partial quotients, doubling, area model), each six ways. **Lock Lattice** is the game: dial each lattice diagonal's total into a luggage-lock wheel; a streak grows the multiplier and the problems.
+Every maths problem, solved more than one way. Pick a topic and its methods play side by side in a 2×3 grid; drag the sliders and every drawing updates as it plays. All 18 topics are live, each solved 4–6 ways: multiplication, division, addition, subtraction, adding fractions, percentages, squaring, square roots, GCD, sum 1 to n, two equations, quadratics, derivatives, integrals, area of a circle, Pythagoras, counting choices, and primes. **Pace** sets how fast the drawings step (default ½×). **Lock Lattice** is the game: dial each lattice diagonal's total into a luggage-lock wheel; a streak grows the multiplier and the problems.
 
-`src/catalog.ts` lists 18 topics that have two or more methods; each gets a page, and the rest show their method list until built.
+Each topic is three files: `src/topics/<id>.ts` (maths), `test/<id>.test.ts`, `src/client/topics/<id>.ts` (drawings). `src/catalog.ts` lists the topics and their method titles.
 
 Built on [app_builder](https://github.com/leftbrain847/app_builder).
 

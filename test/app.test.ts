@@ -53,12 +53,9 @@ describe('six multiplication methods', () => {
 });
 
 describe('catalog', () => {
-  it('every topic has at least two methods and a unique id; multiplication is built with six', () => {
+  it('every topic has at least two methods and a unique id', () => {
     expect(new Set(TOPICS.map((t) => t.id)).size).toBe(TOPICS.length);
     for (const t of TOPICS) expect(t.methods.length, t.id).toBeGreaterThanOrEqual(2);
-    const mult = TOPICS.find((t) => t.id === 'multiplication');
-    expect(mult?.built).toBe(true);
-    expect(mult?.methods).toHaveLength(6);
   });
 });
 

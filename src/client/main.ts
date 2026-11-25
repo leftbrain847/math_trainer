@@ -11,22 +11,54 @@ import config from '../../app.config.json';
 import { applySegment, DEFAULT_RULES, multiplier, problemFor, runOver, startRun, type Run } from '../app';
 import { TOPICS, type Topic } from '../catalog';
 import { digits, lattice } from '../math';
-import { DIVISION_METHODS } from './division-methods';
-import { METHODS } from './methods';
+import type { GridSpec, Slider } from './grid';
+import { GRIDS } from './grids';
 import { svgEl, type Scene } from './scene';
 import { el, render } from './ui';
 
 const ONLINE = import.meta.env.VITE_TARGET !== 'play';
 
+/**
+ * Pace: how fast the method drawings step. 1 = one step every `baseStepMs`. The default is half the first
+ * release's speed. The viewer's choice is remembered in this browser only (a convenience, never required).
+ */
+export const PACE = {
+  baseStepMs: 1100,
+  levels: [0.25, 0.5, 0.75, 1, 1.5, 2],
+  defaultLevel: 0.5,
+  storageKey: 'math-trainer.pace',
+};
+
+function loadPace(): number {
+  try {
+    const v = Number(localStorage.getItem(PACE.storageKey));
+    if (PACE.levels.includes(v)) return v;
+  } catch {
+    /* storage blocked: use the default */
+  }
+  return PACE.defaultLevel;
+}
+
+function savePace(v: number): void {
+  try {
+    localStorage.setItem(PACE.storageKey, String(v));
+  } catch {
+    /* storage blocked: the choice lasts for this page only */
+  }
+}
+
+const paceLabel = (v: number): string => `${v === 0.25 ? '¼' : v === 0.5 ? '½' : v === 0.75 ? '¾' : String(v)}×`;
+
 /** Everything tunable about the client. */
 export const UI = {
-  stepMs: 1100,
   /** Ticks to hold the finished drawing before it replays. */
   holdTicks: 3,
   /** Each tile plays this many times on its own; ↻ plays it again. */
   autoPlays: 2,
   /** Delay before the next round, after a right or wrong answer. */
   nextRoundMs: { right: 700, wrong: 1800 },
+  /** Problem lines longer than this use the smaller `.problem.long` size. */
+  longProblemChars: 18,
   /** The multiplier orb grows with the streak (scale = base + perMultiplier × multiplier). */
   orb: { base: 0.8, perMultiplier: 0.08 },
 };
@@ -35,10 +67,10 @@ export const UI = {
 
 function topicsView(): void {
   const cards = TOPICS.map((t) =>
-    el('button', { className: `topic${t.built ? ' built' : ''}`, onClick: () => go(t.id) }, [
+    el('button', { className: `topic${GRIDS[t.id] ? ' built' : ''}`, onClick: () => go(t.id) }, [
       el('span', { className: 'sym', text: t.symbol }),
       el('span', { className: 'name', text: t.title }),
-      el('span', { className: 'count', text: `${t.methods.length} ways${t.built ? '' : ' · soon'}` }),
+      el('span', { className: 'count', text: GRIDS[t.id] ? `${GRIDS[t.id]?.methods.length} ways` : `${t.methods.length} ways · soon` }),
     ]),
   );
   render(
@@ -62,29 +94,6 @@ function plannedTopicView(t: Topic): void {
   );
 }
 
-/** A built topic's grid: its methods, its two numbers and how to state the problem. */
-interface GridSpec {
-  methods: { id: string; title: string; draw: (a: number, b: number) => Scene }[];
-  a: { label: string; start: number; min: number; max: number };
-  b: { label: string; start: number; min: number; max: number };
-  problem: (a: number, b: number) => string;
-}
-
-export const GRIDS: Record<string, GridSpec> = {
-  multiplication: {
-    methods: METHODS,
-    a: { label: 'a', start: 47, min: 2, max: 999 },
-    b: { label: 'b', start: 23, min: 2, max: 999 },
-    problem: (a, b) => `${a} × ${b} = ${a * b}`,
-  },
-  division: {
-    methods: DIVISION_METHODS,
-    a: { label: 'n', start: 1597, min: 2, max: 9999 },
-    b: { label: 'd', start: 12, min: 2, max: 99 },
-    problem: (n, d) => `${n} ÷ ${d} = ${Math.floor(n / d)}${n % d ? ` r ${n % d}` : ''}`,
-  },
-};
-
 const backButton = () => el('button', { className: 'back', text: '← Topics', onClick: () => go('') });
 
 // ---------- the six-method grid ----------
@@ -107,18 +116,19 @@ const stopTimer = () => {
 };
 
 function gridView(spec: GridSpec): void {
-  let a = spec.a.start;
-  let b = spec.b.start;
   const problem = el('p', { className: 'problem' });
   const showProblem = () => {
-    problem.textContent = spec.problem(a, b);
+    const text = spec.problem(values);
+    problem.textContent = text;
+    // Long problem lines (equations, verdicts) drop a size so they fit one line on a phone.
+    problem.classList.toggle('long', text.length > UI.longProblemChars);
   };
-  showProblem();
 
+  const values = spec.sliders.map((s) => s.start);
   const tiles: Tile[] = spec.methods.map((method) => {
     const frame = el('div', { className: 'frame' });
     const caption = el('p', { className: 'caption' });
-    const tile: Tile = { method, scene: method.draw(a, b), step: 0, hold: 0, plays: 0, frame, caption, node: el('div') };
+    const tile: Tile = { method, scene: method.draw(values), step: 0, hold: 0, plays: 0, frame, caption, node: el('div') };
     const replay = el('button', {
       className: 'replay',
       text: '↻',
@@ -156,7 +166,7 @@ function gridView(spec: GridSpec): void {
   function redraw(): void {
     showProblem();
     for (const t of tiles) {
-      t.scene = t.method.draw(a, b);
+      t.scene = t.method.draw(values);
       t.step = Math.min(t.step, t.scene.steps - 1);
       t.frame.replaceChildren(t.scene.svg);
       paint(t);
@@ -176,7 +186,7 @@ function gridView(spec: GridSpec): void {
     }
   }
 
-  const slider = (range: GridSpec['a'], get: () => number, set: (v: number) => void) => {
+  const slider = (range: Slider, get: () => number, set: (v: number) => void) => {
     const label = range.label;
     const input = el('input');
     input.type = 'range';
@@ -200,18 +210,48 @@ function gridView(spec: GridSpec): void {
     return el('div', { className: 'slider' }, [el('span', { className: 'lbl', text: label }), minus, input, plus, out]);
   };
 
+  let pace = loadPace();
+  const startTimer = () => {
+    stopTimer();
+    timer = setInterval(tick, PACE.baseStepMs / pace);
+  };
+  const paceInput = el('input');
+  paceInput.type = 'range';
+  paceInput.min = '0';
+  paceInput.max = String(PACE.levels.length - 1);
+  paceInput.value = String(Math.max(0, PACE.levels.indexOf(pace)));
+  paceInput.setAttribute('aria-label', 'Pace');
+  const paceOut = el('output', { text: paceLabel(pace) });
+  const setPace = (i: number) => {
+    const k = Math.max(0, Math.min(PACE.levels.length - 1, i));
+    pace = PACE.levels[k] ?? PACE.defaultLevel;
+    paceInput.value = String(k);
+    paceOut.textContent = paceLabel(pace);
+    savePace(pace);
+    startTimer();
+  };
+  paceInput.addEventListener('input', () => setPace(Number(paceInput.value)));
+  const slower = el('button', { className: 'nudge', text: '🐢', onClick: () => setPace(PACE.levels.indexOf(pace) - 1) });
+  const faster = el('button', { className: 'nudge', text: '🐇', onClick: () => setPace(PACE.levels.indexOf(pace) + 1) });
+  slower.setAttribute('aria-label', 'Slower');
+  faster.setAttribute('aria-label', 'Faster');
+  const paceRow = el('div', { className: 'slider pace' }, [el('span', { className: 'lbl', text: 'Pace' }), slower, paceInput, faster, paceOut]);
+
   render(
     el('main', { className: 'wide' }, [
       el('div', { className: 'bar' }, [backButton(), el('button', { className: 'small', text: '🔒 Play', onClick: () => go('play') })]),
       problem,
-      el('div', { className: 'sliders' }, [slider(spec.a, () => a, (v) => (a = v)), slider(spec.b, () => b, (v) => (b = v))]),
+      el('div', { className: 'sliders' }, [
+        ...spec.sliders.map((r, i) => slider(r, () => values[i] ?? r.start, (v) => (values[i] = v))),
+        paceRow,
+      ]),
       el('div', { className: 'grid' }, tiles.map((t) => t.node)),
       el('p', { className: 'muted', text: 'Tap a drawing to enlarge it. Each plays twice; ↻ plays it again. Drag the sliders and every method updates as it plays.' }),
     ]),
   );
+  showProblem();
   for (const t of tiles) paint(t);
-  stopTimer();
-  timer = setInterval(tick, UI.stepMs);
+  startTimer();
 }
 
 // ---------- Lock Lattice ----------
@@ -442,7 +482,7 @@ function route(): void {
   if (id === 'play') return void startGame();
   const t = TOPICS.find((x) => x.id === id);
   if (!t) return topicsView();
-  const grid = t.built ? GRIDS[t.id] : undefined;
+  const grid = GRIDS[t.id];
   if (grid) return gridView(grid);
   plannedTopicView(t);
 }

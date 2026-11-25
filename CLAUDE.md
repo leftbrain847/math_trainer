@@ -57,8 +57,9 @@ An app built on app_builder. The platform rules live in `platform/SPEC.md`: read
 
 ## App-specific notes
 
-- **Two halves:** the method grids (teaching: `src/math.ts` + `src/client/methods.ts`, `src/division.ts` + `src/client/division-methods.ts`) and Lock Lattice (the scored game, `src/app.ts`). Only the game is a solo run; the grids never touch the server.
-- **One topic per sprint day.** `src/catalog.ts` lists every topic with 2+ methods; set `built: true` and add its entry to `GRIDS` in `src/client/main.ts` when its grid ships. Built: multiplication, division. Subtraction is next.
-- **Each grid plays twice on its own** (`UI.autoPlays`), then holds; ↻ replays. Sliders redraw without restarting the animation.
+- **Two halves:** the method grids (teaching; multiplication and division live in `src/math.ts`, `src/division.ts` and `src/client/*methods.ts`, every other topic in `src/topics/` + `src/client/topics/`) and Lock Lattice (the scored game, `src/app.ts`). Only the game is a solo run; the grids never touch the server.
+- **A topic is three files:** `src/topics/<id>.ts` (pure maths), `test/<id>.test.ts`, and `src/client/topics/<id>.ts` (drawings + `export const grid`). `src/client/grids.ts` finds topic files on its own; no shared file changes. Keep `src/catalog.ts` method titles equal to the grid's (a test checks).
+- **All 18 catalog topics are built.** New topics go in `src/catalog.ts` first.
+- **Each grid plays twice on its own** (`UI.autoPlays`), then holds; ↻ replays. Sliders redraw without restarting the animation. **Pace** (`PACE` in `main.ts`) sets the step speed, default ½× (2.2 s a step), remembered per browser.
 - **SVG namespace** comes from parsing a fixed `<svg></svg>` literal (`src/client/scene.ts`), so the bundle holds no URL strings for the Play no-network check.
 - **Typing in the game fills ones-first** (focus moves left), the same order you sum a lattice's diagonals.

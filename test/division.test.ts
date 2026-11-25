@@ -35,11 +35,9 @@ describe('six division methods', () => {
 });
 
 describe('division topic', () => {
-  it('is built, with one catalog method per drawn method', async () => {
+  it('lists one catalog method per drawn method', async () => {
     const { TOPICS } = await import('../src/catalog');
     const { DIVISION_IDS } = await import('../src/division');
-    const t = TOPICS.find((x) => x.id === 'division');
-    expect(t?.built).toBe(true);
-    expect(t?.methods).toHaveLength(DIVISION_IDS.length);
+    expect(TOPICS.find((x) => x.id === 'division')?.methods).toHaveLength(DIVISION_IDS.length);
   });
 });
