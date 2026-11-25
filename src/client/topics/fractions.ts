@@ -283,11 +283,13 @@ function drawLine(a: number, b: number, c: number, d: number): Scene {
   };
   ticks(0, p, b, 1);
   sc.poly(arc(0, at(p), FR.lineArcHigh), { step: 1, cls: 'stroke curve lineA' });
-  sc.text(at(p) / 2, -FR.lineArcHigh - 12, `${a}/${b}`, { step: 1, size: FR.font });
+  sc.text(Math.max(at(p) / 2, textW(`${a}/${b}`, FR.font) / 2), -FR.lineArcHigh - 12, `${a}/${b}`, { step: 1, size: FR.font });
   sc.caption(1, `Jump ${a}/${b}: ${a} step${a > 1 ? 's' : ''} of 1/${b}`);
   ticks(p, s, d, 2);
   sc.poly(arc(at(p), at(s), FR.lineArcLow), { step: 2, cls: 'stroke curve lineB' });
-  sc.text((at(p) + at(s)) / 2, -FR.lineArcLow - 12, `+${c}/${d}`, { step: 2, size: FR.font });
+  const l2 = `+${c}/${d}`;
+  // Keep the second label clear of the first (taller) arc when the jumps are short.
+  sc.text(Math.max((at(p) + at(s)) / 2, at(p) + textW(l2, FR.font) / 2 + 2), -FR.lineArcLow - 12, l2, { step: 2, size: FR.font });
   sc.caption(2, `Then ${c}/${d} more: ${c} step${c > 1 ? 's' : ''} of 1/${d}`);
   const fine = unit / N.L >= FR.minCut;
   if (fine) for (let k = 1; k <= N.landing; k++) sc.line(at(k / N.L), 0, at(k / N.L), 5, { step: 3, cls: 'stroke thin' });

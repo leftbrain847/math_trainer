@@ -20,7 +20,7 @@ const SM = {
 };
 
 const half = (v: number) => (Number.isInteger(v) ? String(v) : v.toFixed(1));
-const capNote = (n: number) => (n > SUM.drawCap ? ` (grid hidden above ${SUM.drawCap})` : '');
+const capNote = (n: number) => (n > SUM.drawCap ? ` (no grid over ${SUM.drawCap})` : '');
 
 function drawPairing(n: number): Scene {
   const sc = new Scene();
@@ -122,7 +122,7 @@ function drawHalfSquare(n: number): Scene {
   sc.rect(0, -W, W, W, { cls: 'box' });
   const st = sc.poly(stairs(n, s), { closed: true, cls: 'stroke curve lineB' });
   sc.heat(st, [0]);
-  sc.caption(0, `The staircase 1 + … + ${n} inside a ${n} × ${n} square${capNote(n)}`);
+  sc.caption(0, `Staircase 1 + … + ${n} in a ${n} × ${n} square${capNote(n)}`);
   sc.poly([[0, 0], [W, -W], [W, 0]], { step: 1, closed: true, cls: 'fill' });
   sc.line(0, 0, W, -W, { step: 1, cls: 'stroke lineA' });
   sc.text(W / 2, 14, `${n}²/2 = ${half(Hs.half)}`, { step: 1, size: SM.font });

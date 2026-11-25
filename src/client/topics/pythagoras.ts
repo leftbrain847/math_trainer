@@ -230,5 +230,5 @@ export const grid: GridSpec = {
     { id: 'euclid', title: "Euclid's proof", draw: ([a = 3, b = 4]) => drawEuclid(a, b) },
     { id: 'bhaskara', title: "Bhaskara's square", draw: ([a = 3, b = 4]) => drawBhaskara(a, b) },
   ],
-  problem: ([a = 3, b = 4]) => `${a}² + ${b}² = ${a * a + b * b}, c ${cShort(a, b)}`,
+  problem: ([a = 3, b = 4]) => `c = √${a * a + b * b} ${cShort(a, b)}`,
 };

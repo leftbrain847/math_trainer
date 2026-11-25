@@ -130,9 +130,9 @@ function drawFormula(n: number, r: number): Scene {
   frac(x0, 96, k ? keep : '1', k ? fact(k) : '1', 2);
   sc.caption(2, big > 1 ? `Cancel ${big}! from top and bottom` : 'Nothing to cancel');
   lead(144, '=', 3);
-  frac(x0, 144, String(F.num), String(F.den), 3);
+  const w3 = frac(x0, 144, String(F.num), String(F.den), 3);
   sc.caption(3, k ? `Multiply out: ${keep} = ${F.num}, ${fact(k)} = ${F.den}` : 'Top and bottom are both 1');
-  sc.text(x0, 184, `= ${F.count}`, { step: 4, anchor: 'start', cls: 'answer', size: C.font });
+  sc.text(x0 + w3 + 6, 144, `= ${F.count}`, { step: 4, anchor: 'start', cls: 'answer', size: C.font + 2 });
   sc.caption(4, `${F.num} ÷ ${F.den} = ${ways(F.count)}`);
   return sc.fit();
 }

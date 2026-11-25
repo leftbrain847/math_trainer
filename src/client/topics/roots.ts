@@ -16,6 +16,8 @@ const RT = {
   rectMax: 130,
   /** Number line length for estimate and binary search. */
   lineW: 150,
+  /** Sparse drawings are padded out to about this width. */
+  minWidth: 170,
   /** Decimal places shown for working values. */
   work: 4,
 };
@@ -136,14 +138,16 @@ function drawFactors(n: number): Scene {
     sc.caption(3, `All paired: √${n} = ${F.outside} exactly`);
     return sc.fit();
   }
-  sc.text(0, y2, `√${n} = ${outside}√${F.inside}`, { step: 2, anchor: 'start', size: RT.font });
+  if (F.paired.length) sc.text(0, y2, `√${n} = ${outside}√${F.inside}`, { step: 2, anchor: 'start', size: RT.font });
   sc.caption(2, F.paired.length ? `Each pair leaves the root as one: ${outside}√${F.inside}` : `√${n} stays as it is`);
   const look = F.lookup.toFixed(ROOTS.lookupDecimals);
   sc.text(0, y2 + RT.row * 1.3, `√${F.inside} ≈ ${look}`, { step: 3, anchor: 'start', size: RT.font, cls: 'muted-text' });
   sc.caption(3, `Look up the small root: √${F.inside} ≈ ${look}`);
   sc.text(0, y2 + RT.row * 2.8, `${outside ? `${outside} × ${look} ` : ''}${eq(F)}`, { step: 4, anchor: 'start', size: RT.font, cls: 'answer' });
   sc.caption(4, outside ? `${outside} × ${look} = ${(F.outside * F.lookup).toFixed(ROOTS.lookupDecimals)} ≈ ${fmtRoot(F)}` : `√${n} ≈ ${fmtRoot(F)}`);
-  return sc.fit();
+  // A prime n draws very little: pad it so it doesn't blow up to fill the tile.
+  const wide = Math.max(x, `√${F.inside} ≈ ${look}`.length * 8.7);
+  return sc.fit(Math.max(8, (RT.minWidth - wide) / 2));
 }
 
 /** The number line a² … (a+1)² with the squares above and their roots below. */
