@@ -1,8 +1,8 @@
 # Read nightly by leftbrain847/index. /new-project fills this in; edit any time.
 theme: learning             # one of the index's config.themes
 tags: [math]          # from the index's config.tags; new tags lowercase_with_underscores
-what: "Each maths topic solved six ways in an animated grid you can scrub live, plus Lock Lattice, a flow game where you dial answers like a luggage lock" # one line on what Math Trainer is
-next: "Build the division grid (long, short, chunking, partial quotients, doubling, area); then save mastery per topic across sessions" # the next step
+what: "Maths topics (multiplication, division so far) each solved six ways in an animated grid you can scrub live, plus Lock Lattice, a flow game where you dial answers like a luggage lock" # one line on what Math Trainer is
+next: "Build the subtraction grid (column borrowing, equal addition, counting up, compensation, number line, nines' complement); then save mastery per topic across sessions" # the next step
 active: true          # true pulls this repo's tasks into J's queue
 public: true          # informational; each sprint day's snapshot decides publishing
 settings_done: true   # J sets the repo settings listed in CLAUDE.md, then this flips to true

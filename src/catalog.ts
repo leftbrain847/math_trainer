@@ -13,7 +13,7 @@ export interface Topic {
 
 export const TOPICS: Topic[] = [
   { id: 'multiplication', title: 'Multiplication', symbol: '×', built: true, methods: ['Standard (long)', 'Lattice', 'Area / box', 'Partial products', 'Halve & double', 'Lines (sticks)'] },
-  { id: 'division', title: 'Division', symbol: '÷', built: false, methods: ['Long division', 'Short (bus stop)', 'Chunking', 'Partial quotients', 'Doubling (Egyptian)', 'Area model'] },
+  { id: 'division', title: 'Division', symbol: '÷', built: true, methods: ['Long division', 'Short (bus stop)', 'Chunking', 'Partial quotients', 'Doubling (Egyptian)', 'Area model'] },
   { id: 'addition', title: 'Addition', symbol: '+', built: false, methods: ['Column with carrying', 'Left to right', 'Number line jumps', 'Compensation', 'Partitioning'] },
   { id: 'subtraction', title: 'Subtraction', symbol: '−', built: false, methods: ['Column with borrowing', 'Equal addition', 'Counting up', 'Compensation', 'Number line', "Nines' complement"] },
   { id: 'fractions', title: 'Adding fractions', symbol: '⁄', built: false, methods: ['Common denominator', 'Lowest common denominator', 'Butterfly (cross-multiply)', 'Area model', 'Number line'] },
