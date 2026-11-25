@@ -26,3 +26,9 @@ describe('topic grids', () => {
     }
   });
 });
+
+describe('catalog and grids agree', () => {
+  it('every catalog topic is built, with the same method titles in the same order', () => {
+    for (const t of TOPICS) expect(GRIDS[t.id]?.methods.map((m) => m.title), t.id).toEqual(t.methods);
+  });
+});
